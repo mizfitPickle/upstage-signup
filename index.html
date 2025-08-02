@@ -88,8 +88,13 @@
       try {
         const res = await fetch("https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/send-welcome-email", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, name: "Beta Waitlist" })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: email,
+            name: "Beta User"
+          })
         });
 
         if (res.ok) {
