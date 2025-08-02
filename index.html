@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Upstage Creator Sign-Up</title>
+  <title>Upstage Studios – Beta Access</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
   <style>
     body {
@@ -11,113 +11,92 @@
       font-family: 'Inter', sans-serif;
       background-color: #111;
       color: #fff;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
     }
-    .container {
-      width: 100%;
-      max-width: 500px;
-    }
-    h1 {
+    header {
       text-align: center;
+      padding: 60px 20px;
+    }
+    header h1 {
+      font-size: 2.5rem;
       color: #00ff88;
+      margin-bottom: 10px;
     }
-    form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
+    header p {
+      color: #ccc;
     }
-    input, select, textarea {
+    .cta {
+      text-align: center;
+      margin-top: 40px;
+    }
+    .cta input[type="email"] {
       padding: 12px;
+      width: 280px;
       border-radius: 6px;
       border: none;
-      font-size: 1rem;
+      margin-right: 10px;
     }
-    button {
-      padding: 12px;
+    .cta button {
+      padding: 12px 24px;
       background-color: #00ff88;
       color: #111;
       border: none;
       border-radius: 6px;
-      font-weight: bold;
       cursor: pointer;
+      font-weight: bold;
     }
-    #successMsg {
-      text-align: center;
+    .cta p {
       margin-top: 20px;
-      color: #00ff88;
-      display: none;
+      color: #0f0;
+    }
+    footer {
+      text-align: center;
+      padding: 30px;
+      font-size: 0.9rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Creator Sign-Up</h1>
-    <form id="creatorForm" onsubmit="handleSubmit(event)">
-      <input type="text" id="name" placeholder="Your Name" required />
-      <input type="email" id="email" placeholder="Your Email" required />
-      <input type="password" id="password" placeholder="Create a Password" required />
-      <textarea id="bio" placeholder="Your Bio" required></textarea>
-      <select id="category" required>
-        <option value="">Select Category</option>
-        <option value="music">Music</option>
-        <option value="comedy">Comedy</option>
-        <option value="dance">Dance</option>
-        <option value="acting">Acting</option>
-        <option value="other">Other</option>
-      </select>
-      <input type="text" id="instagram" placeholder="Instagram Handle (optional)" />
-      <input type="text" id="tiktok" placeholder="TikTok Handle (optional)" />
-      <label>
-        <input type="checkbox" id="proOptIn" />
-        Opt-in to Pro ($5.99/month)
-      </label>
-      <button type="submit">Join Upstage</button>
+  <header>
+    <h1>🎤 Welcome to Upstage Studios</h1>
+    <p>The platform for performers, creators, and rising talent.</p>
+  </header>
+
+  <section class="cta">
+    <form onsubmit="submitForm(event)">
+      <input type="email" id="email" placeholder="Enter your email" required />
+      <button type="submit">Join the Beta Waitlist</button>
     </form>
-    <p id="successMsg">🎉 You're officially a creator on Upstage!</p>
-  </div>
+    <p id="confirmation" style="display:none;">🎉 You're on the list!</p>
+  </section>
+
+  <footer>
+    &copy; 2025 Upstage Studios. All rights reserved.
+  </footer>
 
   <script>
-    async function handleSubmit(event) {
-      event.preventDefault();
-
-      const name = document.getElementById('name').value.trim();
+    async function submitForm(e) {
+      e.preventDefault();
       const email = document.getElementById('email').value.trim();
-      const password = document.getElementById('password').value;
-      const bio = document.getElementById('bio').value.trim();
-      const category = document.getElementById('category').value;
-      const instagram = document.getElementById('instagram').value.trim();
-      const tiktok = document.getElementById('tiktok').value.trim();
-      const pro = document.getElementById('proOptIn').checked;
+      const confirmation = document.getElementById('confirmation');
 
-      if (!name || !email || !password || !bio || !category) {
-        alert("Please complete all required fields.");
+      if (!email) {
+        alert("Please enter a valid email.");
         return;
       }
 
       try {
         const res = await fetch("https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/send-welcome-email", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name,
-            email,
-            password,
-            bio,
-            category,
-            instagram,
-            tiktok,
-            pro
-          })
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ email, name: "Beta Waitlist Signup" }) // name required by Supabase edge function
         });
 
         if (res.ok) {
-          document.getElementById('successMsg').style.display = 'block';
-          document.getElementById('creatorForm').reset();
+          confirmation.innerText = "🎉 You're on the list!";
+          confirmation.style.display = 'block';
         } else {
           const err = await res.json();
           alert("Error: " + (err.error || "Something went wrong"));
