@@ -77,6 +77,7 @@
   <script>
     async function submitForm(e) {
       e.preventDefault();
+
       const email = document.getElementById('email').value.trim();
       const confirmation = document.getElementById('confirmation');
 
@@ -88,12 +89,10 @@
       try {
         const res = await fetch("https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/send-welcome-email", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            email: email,
-            name: "Beta User"
+            user_email: email,
+            user_name: "Beta User"
           })
         });
 
