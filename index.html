@@ -1,37 +1,87 @@
-<script>
-  async function submitForm(e) {
-    e.preventDefault();
-    const email = document.getElementById('email').value.trim();
-    const confirmation = document.getElementById('confirmation');
-
-    if (!email) {
-      alert("Please enter a valid email.");
-      return;
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Upstage Creator Sign-Up</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background-color: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
     }
-
-    try {
-      const res = await fetch("https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/send-welcome-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, name: "Beta Waitlist Signup" }) // name is required by your function
-      });
-
-      if (res.ok) {
-        confirmation.innerText = "🎉 You're on the list!";
-        confirmation.style.display = 'block';
-      } else {
-        const err = await res.json();
-        alert("Error: " + (err.error || "Something went wrong"));
-      }
-    } catch (err) {
-      console.error("Fetch error:", err);
-      alert("Could not connect to server.");
+    .container {
+      width: 100%;
+      max-width: 500px;
     }
-  }
-</script>
+    h1 {
+      text-align: center;
+      color: #00ff88;
+    }
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+    input, select, textarea {
+      padding: 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 1rem;
+    }
+    button {
+      padding: 12px;
+      background-color: #00ff88;
+      color: #111;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    #successMsg {
+      text-align: center;
+      margin-top: 20px;
+      color: #00ff88;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Creator Sign-Up</h1>
+    <form id="creatorForm" onsubmit="handleSubmit(event)">
+      <input type="text" id="name" placeholder="Your Name" required />
+      <input type="email" id="email" placeholder="Your Email" required />
+      <input type="password" id="password" placeholder="Create a Password" required />
+      <textarea id="bio" placeholder="Your Bio" required></textarea>
+      <select id="category" required>
+        <option value="">Select Category</option>
+        <option value="music">Music</option>
+        <option value="comedy">Comedy</option>
+        <option value="dance">Dance</option>
+        <option value="acting">Acting</option>
+        <option value="other">Other</option>
+      </select>
+      <input type="text" id="instagram" placeholder="Instagram Handle (optional)" />
+      <input type="text" id="tiktok" placeholder="TikTok Handle (optional)" />
+      <label>
+        <input type="checkbox" id="proOptIn" />
+        Opt-in to Pro ($5.99/month)
+      </label>
+      <button type="submit">Join Upstage</button>
+    </form>
+    <p id="successMsg">🎉 You're officially a creator on Upstage!</p>
+  </div>
 
+  <script>
     async function handleSubmit(event) {
       event.preventDefault();
 
@@ -40,47 +90,42 @@
       const password = document.getElementById('password').value;
       const bio = document.getElementById('bio').value.trim();
       const category = document.getElementById('category').value;
+      const instagram = document.getElementById('instagram').value.trim();
+      const tiktok = document.getElementById('tiktok').value.trim();
+      const pro = document.getElementById('proOptIn').checked;
 
       if (!name || !email || !password || !bio || !category) {
         alert("Please complete all required fields.");
         return;
       }
 
-      const data = {
-        name,
-        email,
-        password,
-        bio,
-        category,
-        instagram: document.getElementById('instagram').value.trim(),
-        tiktok: document.getElementById('tiktok').value.trim(),
-        pro: document.getElementById('proOptIn').checked
-      };
+      try {
+        const res = await fetch("https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/send-welcome-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name,
+            email,
+            password,
+            bio,
+            category,
+            instagram,
+            tiktok,
+            pro
+          })
+        });
 
-      await fetch('https://zasmhtqyfkxgeudktfys.supabase.co/functions/v1/signup-creator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          service_id: "your_service_id",
-          template_id: "your_template_id",
-          user_id: "your_user_id",
-          template_params: {
-            user_email: email,
-            user_name: name
-          }
-        })
-      });
-
-      document.getElementById('creatorForm').reset();
-      document.getElementById('successMsg').style.display = 'block';
+        if (res.ok) {
+          document.getElementById('successMsg').style.display = 'block';
+          document.getElementById('creatorForm').reset();
+        } else {
+          const err = await res.json();
+          alert("Error: " + (err.error || "Something went wrong"));
+        }
+      } catch (err) {
+        console.error("Fetch error:", err);
+        alert("Could not connect to server.");
+      }
     }
   </script>
 </body>
